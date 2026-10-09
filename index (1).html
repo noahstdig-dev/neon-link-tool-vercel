@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090812">
+<title>Neon Link Tool</title>
+<style>
+:root{--bg:#090812;--line:#302747;--purple:#9c5cff;--pink:#d85dff;--muted:#aaa4c3;--white:#f8f5ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px;display:grid;place-items:center;background:radial-gradient(ellipse at top,#281044 0%,#100d1b 42%,#08070d 78%);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--white)}
+.wrap{width:100%;max-width:700px}.brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px;font-size:12px;font-weight:800;letter-spacing:.16em;color:#d8c5ff;text-transform:uppercase}.logo{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#8952fa,#d653ff);box-shadow:0 0 28px #a14dff55;font-size:20px}
+.card{padding:clamp(22px,5vw,38px);border:1px solid #3a2b52;border-radius:25px;background:linear-gradient(145deg,#191527f5,#10101bf5);box-shadow:0 25px 80px #0008}
+h1{text-align:center;margin:0;font-size:clamp(30px,6vw,43px);letter-spacing:-.04em}.grad{background:linear-gradient(90deg,#c8a5ff,#f0a1ff);color:transparent;background-clip:text}
+.sub{text-align:center;color:var(--muted);font-size:14px;line-height:1.6;max-width:490px;margin:12px auto 27px}.label{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;color:#d6c9f0;margin:0 0 10px}
+.services{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}.service{text-align:left;border:1px solid #3a304f;border-radius:15px;background:#0d0c17;color:var(--white);padding:15px;cursor:pointer;position:relative}.service.active{border-color:#a66aff;background:linear-gradient(135deg,#291746,#171125);box-shadow:0 0 0 2px #a66aff20}.service strong{display:block;font-size:15px;margin-bottom:5px}.service small{color:#aaa0c5;font-size:12px}.check{position:absolute;right:12px;top:12px;display:none;color:#d7b8ff}.service.active .check{display:block}
+.inputrow{display:flex;gap:10px}input{min-width:0;flex:1;width:100%;background:#090811;border:1px solid #3a304f;border-radius:13px;padding:15px;color:white;font-size:14px;outline:none}input:focus{border-color:#a16aff;box-shadow:0 0 0 3px #a16aff20}
+button.primary{border:0;border-radius:13px;padding:0 19px;background:linear-gradient(110deg,#8d5cf6,#c04eff);color:white;font-weight:800;cursor:pointer;box-shadow:0 8px 25px #8b5cf633}button:disabled{opacity:.55;cursor:wait}
+.hint{color:#85809f;font-size:12px;line-height:1.55;margin-top:10px}.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.pill{font-size:11px;padding:7px 10px;border:1px solid #39304c;background:#1b1628;border-radius:99px;color:#c9bce5}
+.result{display:none;margin-top:22px;border:1px solid #3a304f;border-radius:15px;background:#0b0a14;padding:16px}.result.show{display:block}.rtitle{font-weight:800;font-size:14px;margin-bottom:10px}.rtext{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;color:#d9c6ff;line-height:1.6}.actions{display:flex;gap:9px;margin-top:13px}.actions button{padding:10px 13px;font-size:12px}.secondary{background:#211a30;border:1px solid #4a3863;color:white;border-radius:11px;cursor:pointer}
+.foot{text-align:center;color:#77728c;font-size:11px;line-height:1.6;margin:17px 10px 0}
+@media(max-width:530px){.inputrow{flex-direction:column}.inputrow button{padding:15px}.services{gap:9px}.service{padding:13px}.card{border-radius:20px}}
+</style></head>
+<body><main class="wrap">
+<div class="brand"><span class="logo">↗</span> Neon Link Tool</div>
+<section class="card">
+<h1>URL <span class="grad">TOOL</span></h1>
+<p class="sub">Pilih layanan, tempel URL, lalu periksa pengalihan HTTP yang tersedia secara normal.</p>
+<form id="form">
+<span class="label">PILIH LAYANAN</span>
+<div class="services">
+<button class="service active" type="button" data-domain="bicolink.com"><span class="check">✓</span><strong>Bicolink</strong><small>bicolink.com</small></button>
+<button class="service" type="button" data-domain="sfl.gl"><span class="check">✓</span><strong>SFL.gl</strong><small>sfl.gl</small></button>
+</div>
+<label class="label" for="url">TEMPEL URL DI SINI</label>
+<div class="inputrow"><input id="url" type="url" placeholder="https://bicolink.com/..." required><button class="primary" id="go" type="submit">Check URL ↗</button></div>
+<div class="hint">Pilih layanan yang sesuai dengan domain URL yang ditempel.</div>
+</form>
+<div class="pills"><span class="pill">✦ Mobile friendly</span><span class="pill">↗ Redirect check</span><span class="pill">◈ Neon dark UI</span></div>
+<div id="result" class="result" aria-live="polite"><div id="rtitle" class="rtitle">Status</div><div id="rtext" class="rtext"></div><div id="actions" class="actions" hidden><button id="copy" class="secondary" type="button">Salin URL</button><button id="open" class="primary" type="button">Buka URL ↗</button></div></div>
+</section>
+<p class="foot">Memeriksa redirect HTTP biasa. Tidak melewati CAPTCHA, iklan wajib, login, atau halaman verifikasi.</p>
+</main>
+<script>
+let selected='bicolink.com',finalUrl='';
+const input=document.querySelector('#url'),form=document.querySelector('#form'),result=document.querySelector('#result'),rtitle=document.querySelector('#rtitle'),rtext=document.querySelector('#rtext'),actions=document.querySelector('#actions'),go=document.querySelector('#go');
+document.querySelectorAll('.service').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('.service').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');selected=btn.dataset.domain;input.placeholder='https://'+selected+'/...';input.value='';result.classList.remove('show');
+}));
+function show(t,m,err=false){result.classList.add('show');rtitle.textContent=t;rtitle.style.color=err?'#ff9db5':'#e2cfff';rtext.textContent=m;actions.hidden=true;}
+form.addEventListener('submit',async e=>{
+ e.preventDefault();let u;
+ try{u=new URL(input.value.trim());if(!['http:','https:'].includes(u.protocol))throw Error();
+ const h=u.hostname.toLowerCase();if(!(h===selected||h.endsWith('.'+selected))){show('Layanan tidak cocok','URL harus berasal dari '+selected+'. Pilih layanan yang sesuai.',true);return;}
+ }catch{show('URL tidak valid','Masukkan URL lengkap yang diawali http:// atau https://.',true);return;}
+ go.disabled=true;go.textContent='Checking…';show('Memeriksa redirect…','Mengikuti pengalihan HTTP yang dapat diakses secara normal.');
+ try{const res=await fetch('/api/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u.href,service:selected})});const data=await res.json();if(!res.ok)throw Error(data.error||'Pemeriksaan gagal.');
+ finalUrl=data.final_url||u.href;rtitle.textContent=data.reached_destination?'URL tujuan ditemukan':'Pengalihan berhenti';rtext.textContent=(data.note?data.note+'\n':'')+finalUrl;actions.hidden=!finalUrl;
+ }catch(err){show('Tidak bisa memeriksa URL',err.message||'Gagal memeriksa. Coba lagi.',true);}finally{go.disabled=false;go.textContent='Check URL ↗';}
+});
+document.querySelector('#copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(finalUrl);document.querySelector('#copy').textContent='Tersalin ✓'}catch{rtext.textContent+='\\nSalin URL secara manual.'}});
+document.querySelector('#open').addEventListener('click',()=>{if(finalUrl)window.open(finalUrl,'_blank','noopener,noreferrer')});
+</script></body></html>
